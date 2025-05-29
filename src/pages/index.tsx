@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import AuthOTP from '../components/AuthOTP';
+import AuthSelector from '../components/AuthSelector';
 import { useAuth } from '../lib/authContext';
 
 export default function Home() {
@@ -103,7 +103,7 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <AuthOTP />
+        <AuthSelector />
       )}
     </>
   );

@@ -43,12 +43,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     // and the options provided during sign-in
     storage: {
       getItem: (key) => {
+        if (typeof window === 'undefined') return null;
         return localStorage.getItem(key);
       },
       setItem: (key, value) => {
+        if (typeof window === 'undefined') return;
         localStorage.setItem(key, value);
       },
       removeItem: (key) => {
+        if (typeof window === 'undefined') return;
         localStorage.removeItem(key);
       }
     }
@@ -77,13 +80,15 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Test the connection
-supabase.auth.getSession().then(({ data, error }) => {
-  if (error) {
-    console.error('Supabase connection error:', error);
-  } else {
-    console.log('Supabase connection successful');
-  }
-});
+if (typeof window !== 'undefined') {
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      console.error('Supabase connection error:', error);
+    } else {
+      console.log('Supabase connection successful');
+    }
+  });
+}
 
 // Type definitions for our tables
 export interface Team {

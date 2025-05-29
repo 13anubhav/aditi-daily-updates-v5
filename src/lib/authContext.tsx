@@ -292,26 +292,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       setIsLoading(true);
-      // Clear local storage first
+      
+      // Clear ALL auth-related local storage data
       localStorage.removeItem(USER_CACHE_KEY);
+      localStorage.removeItem('aditi_supabase_auth');
+      localStorage.removeItem('aditi_tab_state');
+      
+      // Clear any session storage
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('aditi_tab_id');
+        sessionStorage.removeItem('returning_from_tab_switch');
+        sessionStorage.removeItem('prevent_auto_refresh');
+      }
+      
+      // Clear user state immediately
+      setUser(null);
       
       // Then sign out from supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        throw error;
+        console.error('Supabase signOut error:', error);
+        toast.error('Failed to sign out completely. Please clear your browser data if issues persist.');
+      } else {
+        toast.success('Signed out successfully');
       }
       
-      // Clear user manually
-      setUser(null);
-      
-      // Redirect to home
+      // Force redirect to home page
       if (router.pathname !== '/') {
-        router.push('/');
+        await router.push('/');
       }
+      
+      // Force page reload to ensure clean state
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+      
     } catch (error) {
       console.error('Error signing out:', error);
       toast.error('Failed to sign out');
+      
+      // Even if there's an error, try to clear local data and redirect
+      setUser(null);
+      localStorage.clear();
+      if (router.pathname !== '/') {
+        router.push('/');
+      }
     } finally {
       setIsLoading(false);
     }
